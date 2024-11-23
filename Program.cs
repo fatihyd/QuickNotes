@@ -1,4 +1,17 @@
+using Microsoft.EntityFrameworkCore;
+using QuickNotes.Contexts;
+using QuickNotes.Models;
+
 var builder = WebApplication.CreateBuilder(args);
+
+// what i added :::
+builder.Services.AddDbContext<QuickNotesDbContext>(options =>
+{
+    options.UseMySQL(builder.Configuration.GetConnectionString("DefaultConnection"));
+});
+
+builder.Services.AddIdentity<AppUser, AppRole>().AddEntityFrameworkStores<QuickNotesDbContext>();
+// ::: what i added
 
 // Add services to the container.
 builder.Services.AddControllersWithViews();
