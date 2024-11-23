@@ -1,0 +1,41 @@
+## Ignore .NET Core build outputs ##
+bin/
+obj/
+
+## Rider specific files ##
+.idea/
+
+## User-specific files ##
+.vs/
+.vscode/
+.idea/
+*.user
+*.userosscache
+*.suo
+*.userprefs
+
+## ASP.NET Core ##
+wwwroot/
+
+## macOS specific ##
+.DS_Store
+
+## JetBrains Rider ##
+.idea/
+
+## ASP.NET Core Secrets ##
+secrets/
+
+# Ignore the directory where Rider stores its temporary files
+.idea/
+
+# Node.js and npm-related files
+node_modules/
+
+# Ignore package restore results
+project.lock.json
+project.fragment.lock.json
+
+# User-specific files
+*.swp
+*.swo
