@@ -1,0 +1,28 @@
+@{
+    ViewData["Title"] = "Index";
+}
+
+@model List<QuickNotes.Areas.Admin.Models.UserViewModel>
+
+<h2>User List</h2>
+
+<table class="table table-striped">
+    <thead>
+    <tr>
+        <th>Id</th>
+        <th>Username</th>
+        <th>Email</th>
+    </tr>
+    </thead>
+    
+    <tbody>
+        @foreach (var user in Model)
+        {
+            <tr>
+                <td>@user.Id</td>
+                <td>@user.UserName</td>
+                <td>@user.Email</td>
+            </tr>
+        }
+    </tbody>
+</table>
