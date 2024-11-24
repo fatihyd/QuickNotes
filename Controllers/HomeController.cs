@@ -9,10 +9,12 @@ namespace QuickNotes.Controllers;
 public class HomeController : Controller
 {
     private readonly UserManager<AppUser> _userManager;
+    private readonly SignInManager<AppUser> _signInManager;
 
-    public HomeController(UserManager<AppUser> userManager)
+    public HomeController(UserManager<AppUser> userManager, SignInManager<AppUser> signInManager)
     {
         _userManager = userManager;
+        _signInManager = signInManager;
     }
 
     public IActionResult Index()
@@ -83,6 +85,41 @@ public class HomeController : Controller
         return View();
     }
 
+    [HttpPost]
+    public async Task<IActionResult> LogIn(LogInViewModel model)
+    {
+        // Try to find a user in the database by the provided email
+        var user = await _userManager.FindByEmailAsync(model.Email);
+
+        // Check if the user exists
+        if (user == null)
+        {
+            // If no user is found, add a general error message to the ModelState
+            ModelState.AddModelError(string.Empty, "Invalid username or password.");
+
+            // Return the LogIn view, keeping any errors and the form input data intact
+            return View();
+        }
+
+        // Try to sign the user in
+        // The RememberMe parameter indicates whether the user wants to stay signed in across sessions
+        // The fourth parameter (false) disables account lockout for failed login attempts
+        var signInResult = await _signInManager.PasswordSignInAsync(user, model.Password, model.RememberMe, false);
+
+        // Check if the sign-in attempt was successful
+        if (signInResult.Succeeded)
+        {
+            // If the credentials are correct, redirect the user to the home page
+            return RedirectToAction(nameof(HomeController.Index), "Home");
+        }
+
+        // If the sign-in attempt fails, add an error to the ModelState
+        ModelState.AddModelError(string.Empty, "Invalid sign-in attempt.");
+
+        // Re-display the Login view with the current ModelState and error messages
+        return View();
+    }
+    
     public IActionResult LogOut()
     {
         return View();
