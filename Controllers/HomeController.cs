@@ -120,9 +120,10 @@ public class HomeController : Controller
         return View();
     }
     
-    public IActionResult LogOut()
+    public async Task<IActionResult> LogOut()
     {
-        return View();
+        await _signInManager.SignOutAsync();
+        return RedirectToAction(nameof(HomeController.Index), "Home");
     }
 
     public IActionResult About()

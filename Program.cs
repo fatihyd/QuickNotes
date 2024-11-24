@@ -11,6 +11,24 @@ builder.Services.AddDbContext<QuickNotesDbContext>(options =>
 });
 
 builder.Services.AddIdentity<AppUser, AppRole>().AddEntityFrameworkStores<QuickNotesDbContext>();
+
+builder.Services.ConfigureApplicationCookie(options =>
+{
+    var cookieBuilder = new CookieBuilder();
+    cookieBuilder.Name = "HelloCookie";
+    options.Cookie = cookieBuilder;
+
+    // This tells the system where to redirect unauthenticated users
+    // when they try to access a restricted page
+    options.LoginPath = new PathString("/Home/LogIn");
+
+    // The cookie will expire 60 days after being issued
+    // unless refreshed via sliding expiration
+    options.ExpireTimeSpan = TimeSpan.FromDays(60);
+
+    // Expiration time will reset with each user activity (e.g., page load)
+    options.SlidingExpiration = true;
+});
 // ::: what i added
 
 // Add services to the container.
