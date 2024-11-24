@@ -1,4 +1,5 @@
 using System.Diagnostics;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using QuickNotes.Models;
@@ -126,6 +127,7 @@ public class HomeController : Controller
         return RedirectToAction(nameof(HomeController.Index), "Home");
     }
 
+    [Authorize]
     public IActionResult About()
     {
         return View();
