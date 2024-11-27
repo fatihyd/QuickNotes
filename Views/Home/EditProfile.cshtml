@@ -1,0 +1,21 @@
+@model EditProfileViewModel
+
+<div class="container text-center mt-5">
+    <a class="btn btn-primary btn-lg" asp-controller="Home" asp-action="ChangePassword">Looking to change your password?</a>
+</div>
+
+<br />
+<br />
+<br />
+
+<form asp-controller="Home" asp-action="EditProfile" method="post">
+    <div class="row mb-3">
+        <label for="PhoneNumber" class="col-sm-2 col-form-label" asp-for="PhoneNumber">Phone Number:</label>
+        <div class="col-sm-10">
+            <input asp-for="PhoneNumber" class="form-control" value="@Model.PhoneNumber">
+            <span asp-validation-for="PhoneNumber" class="text-danger"></span>
+        </div>
+    </div>
+
+    <button type="submit" class="btn btn-primary">Edit Profile!</button>
+</form>

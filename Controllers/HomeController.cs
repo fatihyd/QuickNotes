@@ -47,7 +47,7 @@ public class HomeController : Controller
         // Create a new AppUser instance from the submitted data
         var user = new AppUser()
         {
-            UserName = model.Email,
+            UserName = model.UserName,
             Email = model.Email,
             PhoneNumber = model.PhoneNumber
         };
@@ -128,10 +128,113 @@ public class HomeController : Controller
     }
 
     [Authorize]
-    public IActionResult About()
+    public async Task<IActionResult> About()
+    {
+        var user = await _userManager.FindByNameAsync(User.Identity.Name);
+
+        var aboutUserViewModel = new AboutUserViewModel()
+        {
+            UserName = user.UserName,
+            Email = user.Email,
+            PhoneNumber = user.PhoneNumber
+        };
+        
+        return View(aboutUserViewModel);
+    }
+
+    [Authorize]
+    public async Task<IActionResult> EditProfile()
+    {
+        var user = await _userManager.FindByNameAsync(User.Identity.Name);
+        var editProfileViewModel = new EditProfileViewModel()
+        {
+            PhoneNumber = user.PhoneNumber
+        };
+        return View(editProfileViewModel);
+    }
+
+    [Authorize]
+    [HttpPost]
+    public async Task<IActionResult> EditProfile(EditProfileViewModel model)
+    {
+        var user = await _userManager.FindByNameAsync(User.Identity.Name);
+
+        if (user.PhoneNumber != model.PhoneNumber)
+        {
+            user.PhoneNumber = model.PhoneNumber;
+        }
+
+        // Update the user
+        var result = await _userManager.UpdateAsync(user);
+
+        if (result.Succeeded)
+        {
+            // Refresh the sign-in to update the authentication cookie
+            await _signInManager.RefreshSignInAsync(user);
+            return RedirectToAction(nameof(About));
+        }
+
+        foreach (var error in result.Errors)
+        {
+            ModelState.AddModelError(string.Empty, error.Description);
+        }
+        return View(model);
+    }
+
+    [Authorize]
+    public IActionResult ChangePassword()
     {
         return View();
     }
+    
+    [Authorize]
+    [HttpPost]
+    public async Task<IActionResult> ChangePassword(ChangePasswordViewModel model)
+    {
+        if (!ModelState.IsValid)
+        {
+            return View(model);
+        }
+
+        var user = await _userManager.FindByNameAsync(User.Identity.Name);
+        if (user == null)
+        {
+            return RedirectToAction("LogIn", "Home");
+        }
+
+        // Verify the old password
+        var checkPassword = await _userManager.CheckPasswordAsync(user, model.OldPassword);
+        if (!checkPassword)
+        {
+            ModelState.AddModelError(nameof(model.OldPassword), "Old password is incorrect.");
+            return View(model);
+        }
+
+        // Check if the new password is the same as the old password
+        if (model.OldPassword == model.NewPassword)
+        {
+            ModelState.AddModelError(nameof(model.NewPassword), "The new password cannot be the same as the old password.");
+            return View(model);
+        }
+
+        // Change the password
+        var result = await _userManager.ChangePasswordAsync(user, model.OldPassword, model.NewPassword);
+        if (!result.Succeeded)
+        {
+            foreach (var error in result.Errors)
+            {
+                ModelState.AddModelError(string.Empty, error.Description);
+            }
+            return View(model);
+        }
+
+        // Refresh the sign-in to update the authentication cookie
+        await _signInManager.RefreshSignInAsync(user);
+
+        TempData["SuccessMessage"] = "Password changed successfully!";
+        return RedirectToAction(nameof(ChangePassword));
+    }
+
 
     [ResponseCache(Duration = 0, Location = ResponseCacheLocation.None, NoStore = true)]
     public IActionResult Error()
